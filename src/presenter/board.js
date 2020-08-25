@@ -2,10 +2,9 @@ import BoardView from "../view/board.js";
 import SortView from "../view/sort.js";
 import TaskListView from "../view/task-list.js";
 import NoTaskView from "../view/no-task.js";
-import TaskView from "../view/task.js";
-import TaskEditView from "../view/task-edit.js";
 import LoadMoreButtonView from "../view/load-more-button.js";
-import {render, RenderPosition, replace, remove} from "../utils/render.js";
+import TaskPresenter from "./task.js";
+import {render, RenderPosition, remove} from "../utils/render.js";
 import {sortTaskUp, sortTaskDown} from "../utils/task.js";
 import {SortType} from "../const.js";
 
@@ -27,9 +26,11 @@ export default class Board {
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
-
   init(boardTasks) {
     this._boardTasks = boardTasks.slice();
+    // 1. В отличии от сортировки по любому параметру,
+    // исходный порядок можно сохранить только одним способом -
+    // сохранив исходный массив:
     this._sourcedBoardTasks = boardTasks.slice();
 
     render(this._boardContainer, this._boardComponent, RenderPosition.BEFOREEND);
@@ -74,36 +75,8 @@ export default class Board {
   }
 
   _renderTask(task) {
-    const taskComponent = new TaskView(task);
-    const taskEditComponent = new TaskEditView(task);
-
-    const replaceCardToForm = () => {
-      replace(taskEditComponent, taskComponent);
-    };
-
-    const replaceFormToCard = () => {
-      replace(taskComponent, taskEditComponent);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (evt.key === `Escape` || evt.key === `Esc`) {
-        evt.preventDefault();
-        replaceFormToCard();
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      }
-    };
-
-    taskComponent.setEditClickHandler(() => {
-      replaceCardToForm();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
-
-    taskEditComponent.setFormSubmitHandler(() => {
-      replaceFormToCard();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    });
-
-    render(this._taskListComponent, taskComponent, RenderPosition.BEFOREEND);
+    const taskPresenter = new TaskPresenter(this._taskListComponent);
+    taskPresenter.init(task);
   }
 
   _renderTasks(from, to) {
