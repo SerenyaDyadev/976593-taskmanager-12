@@ -245,7 +245,7 @@ export default class TaskEdit extends SmartView {
   }
 
   _dueDateChangeHandler([userDate]) {
-    console.log(userDate);
+    // console.log(userDate);
     // По заданию дедлайн у задачи устанавливается без учёта времеми,
     // но объект даты без времени завести нельзя,
     // поэтому будем считать срок у всех задач -
